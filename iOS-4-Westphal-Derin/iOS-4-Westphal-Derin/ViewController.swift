@@ -9,11 +9,11 @@
 import UIKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
-    var exchangeUsdValue :Double = 1.1883
-    var exchangeBpValue :Double = 0.8810
+    var exchangeUsdValue :Double = 4.123
+    var exchangeBpValue :Double = 10.123
     var eurValue :Double = 1.00
-    var usdValue :Double = 1.1883
-    var bpValue :Double = 0.8810
+    var usdValue :Double = 4.123
+    var bpValue :Double = 10.123
     
     @IBOutlet weak var eurField: UITextField!
     @IBOutlet weak var usdField: UITextField!
@@ -36,11 +36,56 @@ class ViewController: UIViewController, UITextFieldDelegate {
         updateView()
     }
     
+    func getExchangeValueEurToUs() -> Double {
+        if let url = URL(string: "https://finance.google.com/finance/converter?a=1&from=EUR&to=USD") {
+            let exchangeValue = self.exchangeValueBody(url: url)
+            return exchangeValue
+        }
+        return 0.0
+    }
+    
+    func getExchangeValueEurToGbp() -> Double {
+        if let url = URL(string: "https://finance.google.com/finance/converter?a=1&from=EUR&to=GBP") {
+            let exchangeValue =  self.exchangeValueBody(url: url)
+            return exchangeValue
+        }
+        return 0.0
+    }
+    
+    func exchangeValueBody(url: URL) -> Double {
+        do {
+            let encodedUrl = try String(contentsOf: url, encoding: .isoLatin1)
+            let regex = "(?<= \\<span class=bld>)(.*)(?=\\ )"
+            if let range = encodedUrl.range(of: regex, options: .regularExpression){
+                let exchangeValueString = String(encodedUrl[range])
+                if let exchangeValueDouble = Double(exchangeValueString) {
+                    print(exchangeValueDouble)
+                    return exchangeValueDouble
+                }
+            }
+        } catch let error {
+            print(error.localizedDescription)
+        }
+        return 0.0
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return false
     }
+    
+    
+    @IBAction func updateExchangeValueEurToGbp(_ sender: UITextField) {
+        exchangeBp.text! = String(self.getExchangeValueEurToGbp());
+        self.changeValues()
+    }
 
+    @IBAction func updateExchangeValueEurToUsd(_ sender: UITextField) {
+        exchangeUsd.text! = String(self.getExchangeValueEurToUs());
+        self.changeValues()
+    }
+    
+    
     @IBAction func exchangeBpDidEnd(_ sender: UITextField) {
         changeValues()
     }
@@ -60,6 +105,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
     
     func calculateExchangerate() {
         usdValue = eurValue * exchangeUsdValue
