@@ -36,6 +36,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         updateView()
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     func getExchangeValueEurToUs() -> Double {
         if let url = URL(string: "https://finance.google.com/finance/converter?a=1&from=EUR&to=USD") {
             let exchangeValue = self.exchangeValueBody(url: url)
